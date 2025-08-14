@@ -67,12 +67,23 @@ Une fois l'appareil créé, allez sur sa page et copiez les trois valeurs suivan
     static const u1_t PROGMEM APPKEY[16] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
     ```
 
-4.  **Compilez et téléversez :**
+5.  **TTN Payload Decoder :**
+Pour décoder les données envoyées par le TTGO LoRa dans The Things Network (TTN), vous pouvez utiliser le script JavaScript suivant.
+
+### Étapes :
+1. Connectez-vous à votre console TTN.
+2. Allez dans **Applications** → sélectionnez votre **device**.
+3. Ouvrez l’onglet **Payload formatters** → **Uplink**.
+4. Choisissez **JavaScript** comme format.
+5. Collez le code suivant : payload.js
+
+
+5.  **Compilez et téléversez :**
     * Branchez votre TTGO à votre ordinateur.
     * Dans la barre de statut bleue en bas de VSCode, cliquez sur l'icône en forme de flèche (→) qui correspond à **"PlatformIO: Upload"**.
     * PlatformIO va compiler le code et le téléverser sur la carte.
 
-5.  **Vérifiez le fonctionnement :**
+6.  **Vérifiez le fonctionnement :**
     * Cliquez sur l'icône en forme de prise (🔌) dans la barre de statut pour ouvrir le **Moniteur Série**.
     * Vous devriez voir les logs de la librairie LMIC. Après `EV_JOINING`, un `EV_JOINED` confirmera la connexion au réseau.
     * Rendez-vous sur la console TTN, dans la section **"Live data"** de votre appareil. Vous devriez y voir arriver vos messages !
