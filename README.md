@@ -67,10 +67,10 @@ Une fois l'appareil créé, allez sur sa page et copiez les trois valeurs suivan
     static const u1_t PROGMEM APPKEY[16] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
     ```
 
-5.  **TTN Payload Decoder :**
+4.  **TTN Payload Decoder :**
 Pour décoder les données envoyées par le TTGO LoRa dans The Things Network (TTN), vous pouvez utiliser le script JavaScript suivant.
 
-### Étapes :
+# Étapes :
 1. Connectez-vous à votre console TTN.
 2. Allez dans **Applications** → sélectionnez votre **device**.
 3. Ouvrez l’onglet **Payload formatters** → **Uplink**.
