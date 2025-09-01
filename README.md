@@ -92,26 +92,36 @@ Pour décoder les données envoyées par le TTGO LoRa dans The Things Network (T
 
 Ce fichier est le cœur de la configuration pour PlatformIO. Il doit être à la racine de votre projet.
 
-```ini
 [env:ttgo-t-beam]
 platform = espressif32
 board = ttgo-t-beam
 framework = arduino
 lib_deps =
-    mcci-catena/MCCI LoRaWAN LMIC library @ ^4.1.1
-
-# TTGO-LORA-TTN - Mon Projet Django
-
-Ceci est un projet Django pour gérer les données de capteurs LoRaWAN via le réseau The Things Network (TTN).
-
-## Fonctionnalités
-- Réception des données des capteurs
-- Stockage des données dans une base de données
-- Visualisation des données sur une interface web
-
-## Comment démarrer
-1. Clonez le dépôt
-2. Installez les dépendances : `pip install -r requirements.txt`
-3. Lancez les migrations : `python manage.py migrate`
-4. Démarrez le serveur : `python manage.py runserver`
+  mcci-catena/MCCI LoRaWAN LMIC library
+  mikalhart/TinyGPSPlus
+  bodmer/TFT_eSPI
+  adafruit/Adafruit BME680 Library
+  adafruit/Adafruit Unified Sensor
+build_flags =
+  -D ARDUINO_LMIC_PROJECT_CONFIG_H_SUPPRESS
+  -D CFG_eu868=1
+  -D CFG_sx1276_radio=1
+  -D DISABLE_PING
+  -D DISABLE_BEACONS
 monitor_speed = 115200
+
+### TTGO-LORA-TTN - Mon Projet Django
+
+   Ceci est un projet Django pour gérer les données de capteurs LoRaWAN via le réseau The Things Network (TTN).
+   
+   ## Fonctionnalités
+   - Réception des données des capteurs
+   - Stockage des données dans une base de données
+   - Visualisation des données sur une interface web
+   
+   ## Comment démarrer
+   1. Clonez le dépôt
+   2. Installez les dépendances : `pip install -r requirements.txt`
+   3. Lancez les migrations : `python manage.py migrate`
+   4. Démarrez le serveur : `python manage.py runserver`
+
