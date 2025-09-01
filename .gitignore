@@ -2,20 +2,12 @@
 *.sqlite3
 db.sqlite3
 
-# Fichiers de cache
-__pycache__/
-*.pyc
-
 # Environnements virtuels
 venv/
 env/
 
-# Fichiers de secrets et de configuration locale
-.env
-local_settings.py
-
-# Fichiers de logs
-*.log
-
-# Fichiers statiques collectés
-staticfiles/
+# Fichiers générés par Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd

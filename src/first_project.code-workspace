@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "../../first_project"
+		},
+		{
+			"name": "ttgo_second",
+			"path": "../../ttgo_second"
+		},
+		{
+			"name": "third_ttgo",
+			"path": ".."
+		}
+	],
+	"settings": {}
+}
