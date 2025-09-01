@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IoT Temperature Monitoring Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+        
+        .dashboard-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .sensor-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .sensor-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .sensor-card.active {
+            border: 2px solid #3498db;
+            transform: translateY(-3px);
+        }
+        
+        .sensor-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            margin-bottom: 15px;
+        }
+        
+        .temp-icon { background: linear-gradient(135deg, #ff6b6b, #ee5a52); }
+        .humidity-icon { background: linear-gradient(135deg, #4ecdc4, #44a08d); }
+        .pressure-icon { background: linear-gradient(135deg, #a8edea, #fed6e3); color: #666 !important; }
+        .gas-icon { background: linear-gradient(135deg, #45b7d1, #96c93d); }
+        
+        .sensor-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .sensor-label {
+            font-size: 14px;
+            color: #7f8c8d;
+            font-weight: 500;
+        }
+        
+        .device-info {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .info-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .info-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            color: #3498db;
+        }
+        
+        .status-online {
+            color: #27ae60;
+            font-weight: 600;
+        }
+        
+        .page-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .greeting {
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 50px;
+            color: #7f8c8d;
+        }
+        
+        .device-selector {
+            background: white;
+            border-radius: 15px;
+            padding: 15px 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .device-select {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 12px 15px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .device-select:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        
+        .metric-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .metric-btn {
+            padding: 8px 16px;
+            border: 2px solid #e9ecef;
+            background: white;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .metric-btn.active {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+        
+        .metric-btn:hover:not(.active) {
+            border-color: #3498db;
+            color: #3498db;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-4">
+        <div class="dashboard-header">
+            <div class="greeting">Good afternoon, Aziz.</div>
+            <h1 class="page-title">IoT Temperature Monitoring Dashboard</h1>
+        </div>
+
+        <!-- Sélecteur de device -->
+        <div class="device-selector">
+            <div class="row align-items-center">
+                <div class="col-md-3">
+                    <label for="deviceSelect" class="form-label fw-semibold">
+                        <i class="fas fa-broadcast-tower me-2"></i>Select Device:
+                    </label>
+                </div>
+                <div class="col-md-6">
+                    <select class="form-select device-select" id="deviceSelect">
+                        <option value="">Choose a device...</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <span class="badge bg-success" id="deviceStatus">
+                        <i class="fas fa-circle me-1"></i>Loading...
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard principal -->
+        <div id="mainDashboard" style="display: none;">
+            <div class="row">
+                <div class="col-12">
+                    <h5 class="mb-3" style="color: #2c3e50;">
+                        <i class="fas fa-microchip me-2"></i>IoT Sensor Monitor - <span id="currentDevice">Device</span>
+                    </h5>
+                </div>
+            </div>
+
+            <!-- Cartes des capteurs -->
+            <div class="row">
+                <div class="col-lg-3 col-md-6">
+                    <div class="sensor-card" data-metric="temperature">
+                        <div class="sensor-icon temp-icon">
+                            <i class="fas fa-thermometer-half"></i>
+                        </div>
+                        <div class="sensor-value" id="tempValue">--°C</div>
+                        <div class="sensor-label">Temperature</div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <div class="sensor-card" data-metric="humidity">
+                        <div class="sensor-icon humidity-icon">
+                            <i class="fas fa-tint"></i>
+                        </div>
+                        <div class="sensor-value" id="humidityValue">--%</div>
+                        <div class="sensor-label">Humidity</div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <div class="sensor-card" data-metric="pressure">
+                        <div class="sensor-icon pressure-icon">
+                            <i class="fas fa-weight"></i>
+                        </div>
+                        <div class="sensor-value" id="pressureValue">-- hPa</div>
+                        <div class="sensor-label">Pressure</div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <div class="sensor-card" data-metric="gas">
+                        <div class="sensor-icon gas-icon">
+                            <i class="fas fa-wind"></i>
+                        </div>
+                        <div class="sensor-value" id="gasValue">--</div>
+                        <div class="sensor-label">Gas</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Informations du device -->
+            <div class="device-info">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="info-item">
+                            <i class="fas fa-microchip info-icon"></i>
+                            <span>Device: <span id="deviceId">--</span></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="info-item">
+                            <i class="fas fa-clock info-icon"></i>
+                            <span>Last Update: <span id="lastUpdate">--</span></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="info-item">
+                            <i class="fas fa-signal info-icon"></i>
+                            <span>Status: <span class="status-online">Online</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Graphiques -->
+            <div class="chart-container">
+                <div class="chart-title">
+                    <i class="fas fa-chart-line me-2"></i>Historical Data - <span id="chartTitle">Temperature</span>
+                </div>
+                <div class="metric-buttons">
+                    <button class="metric-btn active" data-metric="temperature">
+                        <i class="fas fa-thermometer-half me-1"></i>Temperature
+                    </button>
+                    <button class="metric-btn" data-metric="humidity">
+                        <i class="fas fa-tint me-1"></i>Humidity
+                    </button>
+                    <button class="metric-btn" data-metric="pressure">
+                        <i class="fas fa-weight me-1"></i>Pressure
+                    </button>
+                    <button class="metric-btn" data-metric="gas">
+                        <i class="fas fa-wind me-1"></i>Gas
+                    </button>
+                </div>
+                <div style="height: 400px; position: relative;">
+                    <canvas id="dataChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        {% if not data %}
+        <div class="no-data">
+            <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+            <h4>Aucune donnée disponible</h4>
+            <p>Les données des capteurs apparaîtront ici une fois qu'elles seront reçues via MQTT.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Script pour injecter les données Django dans JavaScript -->
+    <script>
+        // Données injectées depuis Django
+        const djangoData = [
+            {% for item in data %}
+            {
+                device_id: "{{ item.device_id }}",
+                temperature: {{ item.temperature|default:"null" }},
+                humidity: {{ item.humidity|default:"null" }},
+                pressure: {{ item.pressure|default:"null" }},
+                gaz: {{ item.gaz|default:"null" }},
+                received_at: "{{ item.received_at|date:'c' }}"
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ];
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentChart = null;
+        let currentDevice = null;
+        let currentMetric = 'temperature';
+        let allData = {};
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            processData();
+            initializeDeviceSelector();
+            setupEventListeners();
+        });
+
+        function processData() {
+            // Organiser les données par device_id
+            djangoData.forEach(item => {
+                if (!allData[item.device_id]) {
+                    allData[item.device_id] = [];
+                }
+                allData[item.device_id].push(item);
+            });
+
+            // Trier les données par date (plus récentes en premier)
+            Object.keys(allData).forEach(deviceId => {
+                allData[deviceId].sort((a, b) => new Date(b.received_at) - new Date(a.received_at));
+                // Limiter à 20 derniers points pour les graphiques
+                allData[deviceId] = allData[deviceId].slice(0, 20);
+            });
+        }
+
+        function initializeDeviceSelector() {
+            const deviceSelect = document.getElementById('deviceSelect');
+            const deviceStatus = document.getElementById('deviceStatus');
+            
+            // Récupérer les devices uniques
+            const devices = Object.keys(allData);
+            
+            if (devices.length === 0) {
+                deviceStatus.innerHTML = `<i class="fas fa-circle me-1"></i>No devices connected`;
+                deviceStatus.className = 'badge bg-secondary';
+                return;
+            }
+            
+            // Peupler le sélecteur
+            devices.forEach(device => {
+                const option = document.createElement('option');
+                option.value = device;
+                option.textContent = device;
+                deviceSelect.appendChild(option);
+            });
+            
+            deviceStatus.innerHTML = `<i class="fas fa-circle me-1"></i>${devices.length} device${devices.length > 1 ? 's' : ''} connected`;
+            
+            // Sélectionner automatiquement le premier device s'il n'y en a qu'un
+            if (devices.length === 1) {
+                deviceSelect.value = devices[0];
+                currentDevice = devices[0];
+                showDashboard(devices[0]);
+            }
+        }
+
+        function setupEventListeners() {
+            // Sélecteur de device
+            document.getElementById('deviceSelect').addEventListener('change', function() {
+                const selectedDevice = this.value;
+                if (selectedDevice) {
+                    currentDevice = selectedDevice;
+                    showDashboard(selectedDevice);
+                } else {
+                    hideDashboard();
+                }
+            });
+
+            // Cartes des capteurs
+            document.querySelectorAll('.sensor-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const metric = this.dataset.metric;
+                    selectMetric(metric);
+                });
+            });
+
+            // Boutons de métriques
+            document.querySelectorAll('.metric-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const metric = this.dataset.metric;
+                    selectMetric(metric);
+                });
+            });
+        }
+
+        function showDashboard(deviceId) {
+            const dashboard = document.getElementById('mainDashboard');
+            const data = allData[deviceId];
+            
+            if (!data || data.length === 0) {
+                hideDashboard();
+                return;
+            }
+            
+            const latestData = data[0]; // Les données sont triées par date décroissante
+            
+            // Mettre à jour les informations générales
+            document.getElementById('currentDevice').textContent = deviceId;
+            document.getElementById('deviceId').textContent = deviceId;
+            
+            // Mettre à jour les valeurs des capteurs
+            document.getElementById('tempValue').textContent = latestData.temperature !== null ? `${parseFloat(latestData.temperature).toFixed(1)}°C` : '--°C';
+            document.getElementById('humidityValue').textContent = latestData.humidity !== null ? `${parseFloat(latestData.humidity).toFixed(1)}%` : '--%';
+            document.getElementById('pressureValue').textContent = latestData.pressure !== null ? `${parseFloat(latestData.pressure).toFixed(2)} hPa` : '-- hPa';
+            document.getElementById('gasValue').textContent = latestData.gaz !== null ? latestData.gaz.toString() : '--';
+            
+            // Mettre à jour la date
+            const date = new Date(latestData.received_at);
+            document.getElementById('lastUpdate').textContent = date.toLocaleString('fr-FR');
+            
+            // Afficher le dashboard
+            dashboard.style.display = 'block';
+            
+            // Créer le graphique
+            createChart(deviceId, currentMetric);
+        }
+
+        function hideDashboard() {
+            document.getElementById('mainDashboard').style.display = 'none';
+            if (currentChart) {
+                currentChart.destroy();
+                currentChart = null;
+            }
+        }
+
+        function selectMetric(metric) {
+            currentMetric = metric;
+            
+            // Mettre à jour les boutons
+            document.querySelectorAll('.metric-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-metric="${metric}"].metric-btn`).classList.add('active');
+            
+            // Mettre à jour les cartes
+            document.querySelectorAll('.sensor-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            document.querySelector(`[data-metric="${metric}"].sensor-card`).classList.add('active');
+            
+            // Mettre à jour le titre du graphique
+            const titles = {
+                temperature: 'Temperature (°C)',
+                humidity: 'Humidity (%)',
+                pressure: 'Pressure (hPa)',
+                gas: 'Gas Level'
+            };
+            document.getElementById('chartTitle').textContent = titles[metric];
+            
+            // Recréer le graphique si un device est sélectionné
+            if (currentDevice) {
+                createChart(currentDevice, metric);
+            }
+        }
+
+        function createChart(deviceId, metric) {
+            const ctx = document.getElementById('dataChart').getContext('2d');
+            const data = allData[deviceId];
+            
+            if (currentChart) {
+                currentChart.destroy();
+            }
+            
+            // Préparer les données pour le graphique (inverser l'ordre pour affichage chronologique)
+            const labels = data.map(item => {
+                const date = new Date(item.received_at);
+                return date.toLocaleTimeString('fr-FR', { 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    day: '2-digit',
+                    month: '2-digit'
+                });
+            }).reverse();
+            
+            const values = data.map(item => {
+                let value = null;
+                switch(metric) {
+                    case 'temperature': 
+                        value = item.temperature;
+                        break;
+                    case 'humidity': 
+                        value = item.humidity;
+                        break;
+                    case 'pressure': 
+                        value = item.pressure;
+                        break;
+                    case 'gas': 
+                        value = item.gaz;
+                        break;
+                    default: 
+                        value = null;
+                }
+                return value !== null ? parseFloat(value) : null;
+            }).reverse();
+            
+            // Couleurs par métrique
+            const colors = {
+                temperature: { border: '#ff6b6b', background: 'rgba(255, 107, 107, 0.1)' },
+                humidity: { border: '#4ecdc4', background: 'rgba(78, 205, 196, 0.1)' },
+                pressure: { border: '#a8edea', background: 'rgba(168, 237, 234, 0.1)' },
+                gas: { border: '#45b7d1', background: 'rgba(69, 183, 209, 0.1)' }
+            };
+            
+            currentChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: document.getElementById('chartTitle').textContent,
+                        data: values,
+                        borderColor: colors[metric].border,
+                        backgroundColor: colors[metric].background,
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: colors[metric].border,
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        spanGaps: true // Pour gérer les valeurs nulles
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            },
+                            ticks: {
+                                color: '#666'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            },
+                            ticks: {
+                                color: '#666',
+                                maxRotation: 45
+                            }
+                        }
+                    },
+                    elements: {
+                        point: {
+                            hoverBackgroundColor: colors[metric].border
+                        }
+                    }
+                }
+            });
+        }
+
+        // Auto-refresh - recharge la page toutes les 30 secondes pour récupérer les nouvelles données MQTT
+        setInterval(() => {
+            location.reload();
+        }, 30000);
+    </script>
+</body>
+</html>

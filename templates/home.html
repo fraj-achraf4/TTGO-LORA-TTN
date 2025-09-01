@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Accueil - {{ block.super }}{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="jumbotron bg-light p-5 rounded">
+            <h1 class="display-4">Bienvenue sur notre site!</h1>
+        {% if user.is_authenticated %}
+            <p class="lead">Bonjour {{ user.username }}, vous êtes connecté avec succès.</p>
+            <hr class="my-4">
+            <p>Vous pouvez maintenant accéder à toutes les fonctionnalités du site.</p>
+            <a class="btn btn-primary btn-lg" href="#" role="button">Explorer</a>
+        {% else %}
+            <p class="lead">Découvrez toutes nos fonctionnalités en vous connectant.</p>
+            <hr class="my-4">
+            <p>Rejoignez notre communauté dès aujourd'hui!</p>
+            <a class="btn btn-success btn-lg" href="{% url 'signup' %}" role="button">S'inscrire</a>
+            <a class="btn btn-outline-primary btn-lg ms-2" href="{% url 'login' %}" role="button">Se connecter</a>
+        {% endif %}
+    </div>
+
+{% endblock %}
