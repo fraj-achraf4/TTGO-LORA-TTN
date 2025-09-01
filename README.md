@@ -99,4 +99,19 @@ board = ttgo-t-beam
 framework = arduino
 lib_deps =
     mcci-catena/MCCI LoRaWAN LMIC library @ ^4.1.1
+
+# TTGO-LORA-TTN - Mon Projet Django
+
+Ceci est un projet Django pour gérer les données de capteurs LoRaWAN via le réseau The Things Network (TTN).
+
+## Fonctionnalités
+- Réception des données des capteurs
+- Stockage des données dans une base de données
+- Visualisation des données sur une interface web
+
+## Comment démarrer
+1. Clonez le dépôt
+2. Installez les dépendances : `pip install -r requirements.txt`
+3. Lancez les migrations : `python manage.py migrate`
+4. Démarrez le serveur : `python manage.py runserver`
 monitor_speed = 115200
