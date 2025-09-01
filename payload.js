@@ -1,26 +1,17 @@
-function decodeUplink(input) {
-  const bytes = input.bytes;
+function Decoder(bytes, port) {
+  var decoded = {};
 
-  const gas = bytesToFloat(bytes.slice(0, 4));
-  const humidity = bytesToFloat(bytes.slice(4, 8));
-  const pressure = bytesToFloat(bytes.slice(8, 12));
-  const temperature = bytesToFloat(bytes.slice(12, 16));
+  // Température: 2 octets, signé, diviser par 100
+  decoded.temperature = ((bytes[0] << 8) | bytes[1]) / 100;
 
-  return {
-    data: {
-      gas: parseFloat(gas.toFixed(2)),
-      humidity: parseFloat(humidity.toFixed(2)),
-      pressure: parseFloat(pressure.toFixed(0)),
-      temperature: parseFloat(temperature.toFixed(2))
-    },
-    warnings: [],
-    errors: []
-  };
-}
+  // Humidité: 2 octets, non signé, diviser par 100
+  decoded.humidity = ((bytes[2] << 8) | bytes[3]) / 100;
 
-function bytesToFloat(bytes) {
-  const buffer = new ArrayBuffer(4);
-  const view = new DataView(buffer);
-  bytes.forEach((b, i) => view.setUint8(i, b));
-  return view.getFloat32(0, true); // little-endian
+  // Pression: 4 octets, non signé, diviser par 100 pour obtenir hPa
+  decoded.pressur = ((bytes[4] << 24) | (bytes[5] << 16) | (bytes[6] << 8) | bytes[7]) / 100;
+  
+  // Gaz: 3 octets, non signé, diviser par 1000 pour obtenir KOhms
+  decoded.gaz = ((bytes[8] << 16) | (bytes[9] << 8) | bytes[10]) / 1000;
+
+  return decoded;
 }

@@ -1,4 +1,4 @@
-# TTGO LoRa "Hello, World!" pour The Things Network (PlatformIO)
+# TTGO LoRa "Collection de données" pour The Things Network (PlatformIO)
 
 ![Version du projet](https://img.shields.io/badge/version-1.0.0-blue)
 ![Licence](https://img.shields.io/badge/license-MIT-green)
@@ -10,7 +10,7 @@ Projet de démarrage simple pour envoyer un message "Hello, World!" depuis un n�
 
 ## Objectif du projet
 
-Ce projet est un **"Hello, World!" pour le LoRaWAN**. Il a pour but de valider la chaîne de communication complète : de l'appareil physique (TTGO) jusqu'à la plateforme cloud (TTN), en passant par une passerelle LoRaWAN. C'est la première étape essentielle avant de construire des applications plus complexes.
+Ce projet est un **"Collection de données" pour le LoRaWAN**. Il a pour but de valider la chaîne de communication complète : de l'appareil physique (TTGO) jusqu'à la plateforme cloud (TTN), en passant par une passerelle LoRaWAN. C'est la première étape essentielle avant de construire des applications plus complexes.
 
 ## Matériel requis
 
